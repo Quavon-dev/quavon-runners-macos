@@ -63,7 +63,9 @@ RUNNER_GROUP="${OPT_GROUP:-$RUNNER_GROUP}"
 RUNNER_VERSION="${OPT_VERSION:-$RUNNER_VERSION}"
 RUNNER_BASE_DIR="${OPT_BASE_DIR:-$RUNNER_BASE_DIR}"
 RUNNER_EPHEMERAL="${OPT_EPHEMERAL:-$RUNNER_EPHEMERAL}"
-[ -n "$OPT_LABELS" ] && RUNNER_LABELS="$OPT_LABELS"
+if [ -n "$OPT_LABELS" ]; then
+  RUNNER_LABELS="$OPT_LABELS"
+fi
 
 case "$RUNNER_COUNT" in
   ''|*[!0-9]*) die "--count must be a positive integer (got '$RUNNER_COUNT')" ;;
@@ -79,7 +81,7 @@ require_cmd curl tar shasum sed awk
 
 [ "$(uname -s)" = "Darwin" ] || die "this installer targets macOS (found $(uname -s))"
 
-ARCH="$(detect_arch)" || die "unsupported architecture: $(uname -m)"
+ARCH="$(detect_arch "$(uname -m)")" || die "unsupported architecture: $(uname -m)"
 MACOS_VERSION="$(sw_vers -productVersion)"
 MACOS_MAJOR="${MACOS_VERSION%%.*}"
 ok "macOS ${MACOS_VERSION} (${ARCH})"
@@ -88,7 +90,9 @@ xcode-select -p >/dev/null 2>&1 || warn "Xcode Command Line Tools missing. Insta
 
 AUTO_LABELS="macOS,${ARCH},macos-${MACOS_MAJOR}"
 LABELS="$AUTO_LABELS"
-[ -n "$RUNNER_LABELS" ] && LABELS="${LABELS},${RUNNER_LABELS}"
+if [ -n "$RUNNER_LABELS" ]; then
+  LABELS="${LABELS},${RUNNER_LABELS}"
+fi
 
 VERSION="$(resolve_runner_version "$RUNNER_VERSION")"
 ok "runner version ${VERSION}"

@@ -32,7 +32,7 @@ load_env
 RUNNER_BASE_DIR="${OPT_BASE_DIR:-$RUNNER_BASE_DIR}"
 require_cmd curl tar shasum
 
-ARCH="$(detect_arch)" || die "unsupported architecture: $(uname -m)"
+ARCH="$(detect_arch "$(uname -m)")" || die "unsupported architecture: $(uname -m)"
 VERSION="$(resolve_runner_version "${OPT_VERSION:-$RUNNER_VERSION}")"
 log "target version ${VERSION} (${ARCH})"
 
@@ -97,5 +97,7 @@ fi
 dirs="$(runner_dirs || true)"
 [ -n "$dirs" ] || die "no configured runners under ${RUNNER_BASE_DIR}"
 printf '%s\n' "$dirs" | while IFS= read -r d; do
-  [ -n "$d" ] && update_one "$d"
+  if [ -n "$d" ]; then
+    update_one "$d"
+  fi
 done

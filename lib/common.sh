@@ -47,8 +47,8 @@ confirm() {
 # ---------------------------------------------------------------------------
 
 detect_arch() {
-  # Maps `uname -m` onto the GitHub runner asset architecture.
-  case "${1:-$(uname -m)}" in
+  # detect_arch <machine>  -- maps `uname -m` onto the runner asset architecture.
+  case "$1" in
     x86_64|x64|amd64) printf 'x64' ;;
     arm64|aarch64)    printf 'arm64' ;;
     *)                return 1 ;;
@@ -108,8 +108,8 @@ repo_root() {
 }
 
 load_env() {
-  # load_env [env_file] -- sources .env without exporting it into the world.
-  local env_file="${1:-${ENV_FILE:-$(repo_root)/.env}}"
+  # Sources the env file (ENV_FILE, default <repo>/.env) and applies defaults.
+  local env_file="${ENV_FILE:-$(repo_root)/.env}"
   if [ -f "$env_file" ]; then
     local perms
     perms="$(stat -f '%OLp' "$env_file" 2>/dev/null || stat -c '%a' "$env_file" 2>/dev/null || echo '')"
@@ -167,7 +167,9 @@ api() {
     -H "Accept: application/vnd.github+json"
     -H "$API_VERSION_HEADER"
   )
-  [ -n "$body" ] && args+=(-H 'Content-Type: application/json' -d "$body")
+  if [ -n "$body" ]; then
+    args+=(-H 'Content-Type: application/json' -d "$body")
+  fi
 
   status="$(curl "${args[@]}" "${GITHUB_API}${path}")" || die "curl failed for $method $path"
   response="$(cat "$tmp")"

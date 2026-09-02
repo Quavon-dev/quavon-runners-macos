@@ -55,8 +55,11 @@ remove_one() {
     rm -f "$plist"
   elif [ -f "${dir}/svc.sh" ]; then
     log "${name}: stopping the launchd service"
-    (cd "$dir" && ./svc.sh stop >/dev/null 2>&1 || true)
-    (cd "$dir" && ./svc.sh uninstall >/dev/null 2>&1 || true)
+    (
+      cd "$dir" || exit 0
+      ./svc.sh stop >/dev/null 2>&1 || true
+      ./svc.sh uninstall >/dev/null 2>&1 || true
+    )
   fi
 
   if [ -f "${dir}/.runner" ]; then
@@ -93,5 +96,7 @@ if [ "$ALL" -eq 0 ]; then
 fi
 
 printf '%s\n' "$dirs" | while IFS= read -r d; do
-  [ -n "$d" ] && remove_one "$d"
+  if [ -n "$d" ]; then
+    remove_one "$d"
+  fi
 done

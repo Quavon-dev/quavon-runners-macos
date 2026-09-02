@@ -27,7 +27,7 @@ else
   fail "not macOS (found $(uname -s))"
 fi
 
-if arch="$(detect_arch)"; then
+if arch="$(detect_arch "$(uname -m)")"; then
   pass "architecture: ${arch} ($(uname -m))"
 else
   fail "unsupported architecture: $(uname -m)"
