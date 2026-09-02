@@ -1,0 +1,23 @@
+name: smoke-self-hosted
+
+# Manual check that the fleet is alive. Copy this job into any private repo in
+# the org to verify a newly provisioned VM.
+on:
+  workflow_dispatch:
+
+jobs:
+  smoke:
+    runs-on: [self-hosted, macOS]
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Report the host
+        run: |
+          echo "runner name : ${RUNNER_NAME}"
+          echo "arch        : $(uname -m)"
+          sw_vers
+          echo "free disk   : $(df -h "$HOME" | awk 'NR==2 {print $4}')"
+          xcode-select -p || true
+
+      - name: Unit tests
+        run: ./tests/run.sh

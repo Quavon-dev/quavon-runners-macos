@@ -1,0 +1,10 @@
+# Secrets — never commit
+.env
+*.pat
+*.token
+
+# Local state
+actions-runners/
+*.tar.gz
+_diag/
+.DS_Store

@@ -1,0 +1,21 @@
+name: lint
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  shell:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install shellcheck
+        run: sudo apt-get update && sudo apt-get install -y shellcheck
+
+      - name: Shellcheck
+        run: shellcheck -x --source-path=SCRIPTDIR bootstrap.sh bin/*.sh lib/*.sh tests/*.sh
+
+      - name: Unit tests
+        run: ./tests/run.sh
