@@ -33,7 +33,7 @@ if [ ! -f "$ENV_FILE" ]; then
   elif command -v gh >/dev/null 2>&1 && gh auth token >/dev/null 2>&1; then
     ok "using the token from the gh CLI"
   else
-    printf 'GitHub PAT (admin:org, input hidden): ' >&2
+    printf 'GitHub PAT — org-owned fine-grained with "Self-hosted runners: RW", or classic with admin:org (input hidden): ' >&2
     stty -echo 2>/dev/null || true
     read -r token || true
     stty echo 2>/dev/null || true

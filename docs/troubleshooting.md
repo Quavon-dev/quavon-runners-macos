@@ -14,17 +14,33 @@ launchctl print "gui/$(id -u)/actions.runner.quavon-dev.$(hostname -s)"
 Fix: enable automatic login (see [vm-setup.md](vm-setup.md)), or log in over
 screen sharing and keep the session alive.
 
-## HTTP 404 when registering
+## HTTP 403 / 404 when registering
 
-The token cannot see the org's runner settings. A classic PAT needs `admin:org`;
-a fine-grained PAT needs the org permission *Self-hosted runners: Read and
-write*, and must be **approved by an org owner**. `read:org` alone returns 404,
-not 403.
+> You must be an org admin or have the runners and runner groups fine-grained
+> permission.
+
+The token cannot manage the org's runners. Check it directly:
 
 ```bash
-curl -sS -H "Authorization: Bearer $GITHUB_PAT" \
+curl -i -H "Authorization: Bearer $GITHUB_PAT" \
   https://api.github.com/orgs/quavon-dev/actions/runners
 ```
+
+- **Fine-grained PAT** — the most common mistake is generating it under your
+  *personal account*. The *Self-hosted runners* permission only exists when the
+  token's **resource owner is the org**; pick `quavon-dev` there, then set
+  Organization permissions → *Self-hosted runners* → **Read and write**. The
+  token also has to be approved by an org owner under
+  `Org → Settings → Personal access tokens → Pending requests`, and the org must
+  allow fine-grained PATs at all.
+- **Classic PAT** — needs `admin:org`. `read:org` is not enough (that is what a
+  default `gh auth login` token carries, and why `gh auth token` usually fails
+  here).
+- Either way, the creator must be an **owner of the org**; org members with
+  admin on a repo can manage that repo's runners, not the org's.
+- A 404 instead of a 403 usually means the token is valid but sees no such org —
+  check `GITHUB_ORG` for a typo, and that the token is not scoped to a different
+  organisation.
 
 ## HTTP 403 on the runner group
 

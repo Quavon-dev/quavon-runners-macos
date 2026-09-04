@@ -83,7 +83,7 @@ if runners="$(api GET "/orgs/${GITHUB_ORG}/actions/runners?per_page=1" 2>&1)"; t
 else
   # `api` reports through err(); drop its prefix so the reason reads cleanly here.
   fail "cannot list runners for ${GITHUB_ORG}: $(printf '%s' "$runners" | sed 's/^[^ ]*fail[^ ]* //')"
-  fail "the token needs the classic 'admin:org' scope, or fine-grained org permission 'Self-hosted runners: read & write'"
+  fail "the token needs: fine-grained PAT owned by '${GITHUB_ORG}' with 'Self-hosted runners: Read and write' (and org-owner approval), or a classic PAT with 'admin:org'"
 fi
 
 log "host stability"

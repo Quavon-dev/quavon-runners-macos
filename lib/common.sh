@@ -146,7 +146,7 @@ github_token() {
     gh auth token
     return 0
   fi
-  die "no GitHub token. Set GITHUB_PAT in .env (scope: admin:org) or run 'gh auth login'."
+  die "no GitHub token. Set GITHUB_PAT in .env (org-owned fine-grained PAT with 'Self-hosted runners: Read and write', or classic PAT with admin:org) or run 'gh auth login'."
 }
 
 api() {

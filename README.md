@@ -31,14 +31,35 @@ Two runners on one host, with extra labels:
 - macOS 13+ (Sonoma / Sequoia), Intel `x64` or Apple `arm64` — the installer
   detects the architecture and picks the matching runner build.
 - Xcode Command Line Tools: `xcode-select --install`
-- A GitHub token that may manage org runners:
-  - classic PAT with the **`admin:org`** scope, or
-  - fine-grained PAT with the org permission **Self-hosted runners: Read and write**.
+- A GitHub token that can manage the org's runners. Two options, both fine —
+  pick one and put it in `.env` as `GITHUB_PAT`. The token is used *only* to
+  mint short-lived registration tokens and is never written into a runner
+  directory.
 
-  Store it in `.env` as `GITHUB_PAT`. It is used *only* to mint short-lived
-  registration tokens and is never written into the runner directory. A `gh auth
-  login` token works too, but only if that login carries `admin:org` — the
+  **Option A — fine-grained PAT (narrower, recommended).**
+  Settings → Developer settings → Personal access tokens → Fine-grained tokens →
+  Generate new token.
+  - **Resource owner: `quavon-dev`** — this is the part that matters. The
+    *Self-hosted runners* permission only appears once the org is the resource
+    owner; on a personal-account token it is not in the list.
+  - Repository access: *Public repositories* is enough — runner registration is
+    an org-level operation and touches no repo.
+  - **Organization permissions → Self-hosted runners → Read and write.**
+  - The org must allow fine-grained PATs, and an org owner has to approve the
+    token before it works (Org → Settings → Personal access tokens).
+
+  **Option B — classic PAT.** Tokens (classic) → Generate new token (classic) →
+  tick **`admin:org`**. Simpler to issue, but far broader: it fully manages the
+  org, its teams and memberships. There is no narrower classic scope —
+  `manage_runners:*` exists only at the enterprise level.
+
+  Either way the person creating the token must be an **owner of quavon-dev**.
+  A `gh auth login` token also works if that login carries `admin:org`; the
   default `gh` scopes do not.
+
+  For a fleet you do not want tied to one person's account, a **GitHub App**
+  installed on the org with *Self-hosted runners: Read and write* mints
+  installation tokens instead. This repo does not implement that yet.
 
 ## Commands
 
@@ -63,7 +84,7 @@ overridden by a flag on `bin/install.sh`.
 | Variable | Default | Notes |
 | --- | --- | --- |
 | `GITHUB_ORG` | `quavon-dev` | Org the runners register with |
-| `GITHUB_PAT` | — | `admin:org` token; falls back to `gh auth token` |
+| `GITHUB_PAT` | — | Classic PAT with `admin:org`; falls back to `gh auth token` |
 | `RUNNER_LABELS` | — | Extra labels; `macOS`, the arch and `macos-<major>` are added automatically |
 | `RUNNER_GROUP` | `Default` | Runner group |
 | `RUNNER_COUNT` | `1` | Runners per host |
